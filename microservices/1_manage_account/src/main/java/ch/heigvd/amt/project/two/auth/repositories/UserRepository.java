@@ -4,5 +4,5 @@ import ch.heigvd.amt.project.two.auth.entities.UserEntity;
 import org.springframework.data.repository.CrudRepository;
 
 
-public interface UserRepository extends CrudRepository<UserEntity, Long>{
+public interface UserRepository extends CrudRepository<UserEntity, String>{
 }

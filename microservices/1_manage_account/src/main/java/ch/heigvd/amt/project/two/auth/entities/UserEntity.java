@@ -14,12 +14,9 @@ import java.io.Serializable;
 public class UserEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     @Setter
-    private long id;
-
-    @Column(nullable = false)
+    @Getter
+    @Column(nullable = false, unique = true)
     private String email;
     @Column
     private String firstName;

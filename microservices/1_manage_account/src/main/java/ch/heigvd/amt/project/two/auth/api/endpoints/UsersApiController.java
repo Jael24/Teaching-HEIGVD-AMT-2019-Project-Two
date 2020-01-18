@@ -31,11 +31,11 @@ public class UsersApiController implements UsersApi {
     public ResponseEntity<Object> createUser(@ApiParam(value = "", required = true) @Valid @RequestBody User user) {
         UserEntity newUserEntity = toUserEntity(user);
         userRepository.save(newUserEntity);
-        Long id = newUserEntity.getId();
+        String email = newUserEntity.getEmail();
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(newUserEntity.getId()).toUri();
+                .buildAndExpand(newUserEntity.getEmail()).toUri();
 
         return ResponseEntity.created(location).build();
     }
@@ -50,11 +50,11 @@ public class UsersApiController implements UsersApi {
         return ResponseEntity.ok(users);
     }
 
-    public ResponseEntity<Void> modifyPassword(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The user's id",required=true) @PathVariable("id") Integer id,@ApiParam(value = ""  )  @Valid @RequestBody InlineObject patchUser) {
+    public ResponseEntity<Void> modifyPassword(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The user's id",required=true) @PathVariable("id") String id,@ApiParam(value = ""  )  @Valid @RequestBody InlineObject patchUser) {
 
-        if(userRepository.findById(Long.valueOf(id)).isPresent()) {
-            UserEntity userEntity = userRepository.findById(Long.valueOf(id)).get();
-            userEntity.setId(id);
+        if(userRepository.findById(id).isPresent()) {
+            UserEntity userEntity = userRepository.findById(id).get();
+            userEntity.setEmail(id);
             userEntity.setEmail(patchUser.getEmail()); //email is mandatory
             if (patchUser.getNewPass() != null)
                 userEntity.setPassword(patchUser.getNewPass());

@@ -103,7 +103,6 @@ paths:
         '200':
           description: success
           schema:
-            type: array
             items:
               $ref: '#/definitions/JWTToken'
         '403':
