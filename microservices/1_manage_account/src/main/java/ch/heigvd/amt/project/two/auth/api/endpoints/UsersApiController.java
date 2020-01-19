@@ -1,12 +1,14 @@
 package ch.heigvd.amt.project.two.auth.api.endpoints;
 
 import ch.heigvd.amt.project.two.auth.api.UsersApi;
+import ch.heigvd.amt.project.two.auth.configuration.JwtTokenUtil;
 import ch.heigvd.amt.project.two.auth.entities.UserEntity;
 import ch.heigvd.amt.project.two.auth.model.InlineObject;
 import ch.heigvd.amt.project.two.auth.model.User;
 import ch.heigvd.amt.project.two.auth.repositories.UserRepository;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,8 +27,6 @@ public class UsersApiController implements UsersApi {
 
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    private HttpServletRequest request;
 
     public ResponseEntity<Object> createUser(@ApiParam(value = "", required = true) @Valid @RequestBody User user) {
         UserEntity newUserEntity = toUserEntity(user);
@@ -48,22 +48,32 @@ public class UsersApiController implements UsersApi {
         return ResponseEntity.ok(users);
     }
 
-    public ResponseEntity<Void> modifyPassword(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The user's id",required=true) @PathVariable("id") String id,@ApiParam(value = ""  )  @Valid @RequestBody InlineObject patchUser) {
-        // TODO Permission
-        if(userRepository.findById(id).isPresent()) {
-            UserEntity userEntity = userRepository.findById(id).get();
-            userEntity.setEmail(id);
-            userEntity.setEmail(patchUser.getEmail()); //email is mandatory
-            if (patchUser.getNewPass() != null)
-                userEntity.setPassword(patchUser.getNewPass());
-            if (patchUser.getIsBlocked() != null)
-                userEntity.setBlocked(patchUser.getIsBlocked());
-            if (patchUser.getIsValidated() != null)
-                userEntity.setValidated(patchUser.getIsValidated());
-            userRepository.save(userEntity);
-            return ResponseEntity.ok().build();
+    public ResponseEntity<Void> modifyData(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The user's id",required=true) @PathVariable("id") String id,@ApiParam(value = ""  )  @Valid @RequestBody InlineObject patchUser) {
+        String emailFromToken = JwtTokenUtil.getEmailFromToken(authorization);
+        Boolean isAdminFromToken = JwtTokenUtil.getIsAdminFromToken(authorization);
+
+        if (emailFromToken.equals(id) || isAdminFromToken) {
+            if (userRepository.findById(id).isPresent()) {
+                UserEntity userEntity = userRepository.findById(id).get();
+                userEntity.setEmail(id);
+                if (patchUser.getNewPass() != null)
+                    userEntity.setPassword(patchUser.getNewPass());
+                if (patchUser.getIsBlocked() != null) {
+                    if (isAdminFromToken) {
+                        userEntity.setBlocked(patchUser.getIsBlocked());
+                    } else {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                    }
+                }
+                if (patchUser.getIsValidated() != null)
+                    userEntity.setValidated(patchUser.getIsValidated());
+                userRepository.save(userEntity);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 

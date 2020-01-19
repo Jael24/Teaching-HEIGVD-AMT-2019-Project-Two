@@ -45,8 +45,8 @@ paths:
 
   /users/{id}:
     patch:
-      description: modify the password of a user
-      operationId: modifyPassword
+      description: modify the data of a user
+      operationId: modifyData
       consumes:
         - application/json
       parameters:
@@ -64,11 +64,7 @@ paths:
           description: The data to modify
           schema:
             type: object
-            required:
-              - email
             properties:
-              email:
-                type: string
               newPass:
                 type: string
               isBlocked:
