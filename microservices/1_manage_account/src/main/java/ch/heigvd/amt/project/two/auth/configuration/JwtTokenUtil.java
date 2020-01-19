@@ -30,12 +30,12 @@ public class JwtTokenUtil implements Serializable {
     }
 
     //retrieve isBlocked from jwt token
-    public Boolean getIsBlockedFromToken(String token) {
+    public static Boolean getIsBlockedFromToken(String token) {
         return getAllClaimsFromToken(token).get("isBlocked", Boolean.class);
     }
 
     //retrieve isAdmin from jwt token
-    public Boolean getIsAdminFromToken(String token) {
+    public static Boolean getIsAdminFromToken(String token) {
         return getAllClaimsFromToken(token).get("isAdmin", Boolean.class);
     }
 

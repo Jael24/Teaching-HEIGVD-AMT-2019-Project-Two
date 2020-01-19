@@ -15,4 +15,14 @@ public class Router {
 
         return filterRegistrationBean;
     }
+
+    @Bean
+    public FilterRegistrationBean<IsBlockedFilter> isUserBlockedFilter() {
+        FilterRegistrationBean<IsBlockedFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+
+        filterRegistrationBean.setFilter(new IsBlockedFilter());
+        filterRegistrationBean.addUrlPatterns("/users/*");
+
+        return filterRegistrationBean;
+    }
 }

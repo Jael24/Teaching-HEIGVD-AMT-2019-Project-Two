@@ -1,8 +1,6 @@
 package ch.heigvd.amt.project.two.auth.api.filters;
 
 import ch.heigvd.amt.project.two.auth.configuration.JwtTokenUtil;
-import io.jsonwebtoken.Jws;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -34,6 +32,8 @@ public class AuthFilter extends OncePerRequestFilter {
 
         // Authentication successful
         request.setAttribute("email", emailFromToken);
+        request.setAttribute("isBlocked", JwtTokenUtil.getIsBlockedFromToken(token));
+        request.setAttribute("isAdmin", JwtTokenUtil.getIsAdminFromToken(token));
 
         filterChain.doFilter(request, response);
 
