@@ -87,7 +87,7 @@ You don't have to follow this sequence if you prefer to do some of the tasks bef
 
 **Week 3 (December 16th):**
 
-* Design, implement and validate the **user management** and **authentication** API.
+* ~~Design, implement and validate the **user management** and **authentication** API.~~
 * Go back to the first endpoint implementation and **enforce security rules**.
 * Implement BDD scenarios to validate that authentication and authorization rules work as expected.
 
