@@ -24,3 +24,25 @@ services:
       MYSQL_ROOT_PASSWORD: pwd
     ports:
       - 3307:3306
+
+  1_manage_account:
+    build: ../docker-images/1_manage_account/
+    container_name: manage_account
+    restart: on-failure
+    environment:
+        spring_profiles_active: docker
+    ports:
+      - 8081:8081
+    depends_on:
+      - db_1
+
+  2_expose_entities:
+    build: ../docker-images/2_expose_entities/
+    container_name: expose_entities
+    restart: on-failure
+    environment:
+        spring_profiles_active: docker
+    ports:
+      - 8080:8080
+    depends_on:
+      - db_2
