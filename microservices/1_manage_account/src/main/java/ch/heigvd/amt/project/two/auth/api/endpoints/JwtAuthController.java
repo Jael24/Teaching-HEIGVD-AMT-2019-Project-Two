@@ -8,6 +8,7 @@ import ch.heigvd.amt.project.two.auth.repositories.UserRepository;
 import ch.heigvd.amt.project.two.auth.services.JwtAuthService;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +28,12 @@ public class JwtAuthController implements LoginApi {
 
         UserEntity userInDB = userRepository.findById(login.getEmail()).orElse(null);
 
-        if (userInDB != null)
+        if (userInDB != null) {
+            if (userInDB.isBlocked()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             jwtToken = jwtAuthService.checkUserAndPass(login.getEmail(), login.getPassword(), userInDB);
+        }
 
         return ResponseEntity.ok(jwtToken.getToken());
     }
