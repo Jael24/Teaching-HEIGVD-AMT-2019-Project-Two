@@ -21,12 +21,22 @@ public class JwtTokenUtil implements Serializable {
 
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
-    @Value("${jwt.secret}")
-    private String secret;
+    //@Value("${jwt.secret}")
+    private static String secret = "guillaumejael";
 
-    //retrieve username from jwt token
-    public String getEmailFromToken(String token) {
+    //retrieve email from jwt token
+    public static String getEmailFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    //retrieve isBlocked from jwt token
+    public Boolean getIsBlockedFromToken(String token) {
+        return getAllClaimsFromToken(token).get("isBlocked", Boolean.class);
+    }
+
+    //retrieve isAdmin from jwt token
+    public Boolean getIsAdminFromToken(String token) {
+        return getAllClaimsFromToken(token).get("isAdmin", Boolean.class);
     }
 
     //retrieve expiration date from jwt token
@@ -34,13 +44,13 @@ public class JwtTokenUtil implements Serializable {
         return getClaimFromToken(token, Claims::getExpiration);
     }
 
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+    public static <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
 
     //for retrieveing any information from token we will need the secret key
-    private Claims getAllClaimsFromToken(String token) {
+    private static Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
@@ -51,8 +61,11 @@ public class JwtTokenUtil implements Serializable {
     }
 
     //generate token for user
-    public String generateToken(UserEntity userEntity) {
+    public static String generateToken(UserEntity userEntity) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("email", userEntity.getEmail());
+        claims.put("isAdmin", userEntity.isAdmin());
+        claims.put("isBlocked", userEntity.isBlocked());
         return doGenerateToken(claims, userEntity.getEmail());
     }
 
@@ -61,7 +74,7 @@ public class JwtTokenUtil implements Serializable {
     //2. Sign the JWT using the HS512 algorithm and secret key.
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
-    private String doGenerateToken(Map<String, Object> claims, String subject) {
+    private static String doGenerateToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();

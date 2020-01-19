@@ -1,20 +1,18 @@
 package ch.heigvd.amt.project.two.auth.api.endpoints;
 
 import ch.heigvd.amt.project.two.auth.api.LoginApi;
-import ch.heigvd.amt.project.two.auth.api.exceptions.NotFoundException;
 import ch.heigvd.amt.project.two.auth.entities.UserEntity;
 import ch.heigvd.amt.project.two.auth.model.InlineObject1;
 import ch.heigvd.amt.project.two.auth.model.JWTToken;
-import ch.heigvd.amt.project.two.auth.model.User;
 import ch.heigvd.amt.project.two.auth.repositories.UserRepository;
 import ch.heigvd.amt.project.two.auth.services.JwtAuthService;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 public class JwtAuthController implements LoginApi {

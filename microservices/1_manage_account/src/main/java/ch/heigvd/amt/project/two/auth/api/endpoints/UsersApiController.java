@@ -31,7 +31,6 @@ public class UsersApiController implements UsersApi {
     public ResponseEntity<Object> createUser(@ApiParam(value = "", required = true) @Valid @RequestBody User user) {
         UserEntity newUserEntity = toUserEntity(user);
         userRepository.save(newUserEntity);
-        String email = newUserEntity.getEmail();
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -41,7 +40,6 @@ public class UsersApiController implements UsersApi {
     }
 
     public ResponseEntity<List<User>> getUsers(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization) {
-        //TODO Authorization
         List<User> users = new ArrayList<>();
         for (UserEntity userEntity : userRepository.findAll()) {
             users.add(toUser(userEntity));
@@ -51,7 +49,7 @@ public class UsersApiController implements UsersApi {
     }
 
     public ResponseEntity<Void> modifyPassword(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The user's id",required=true) @PathVariable("id") String id,@ApiParam(value = ""  )  @Valid @RequestBody InlineObject patchUser) {
-
+        // TODO Permission
         if(userRepository.findById(id).isPresent()) {
             UserEntity userEntity = userRepository.findById(id).get();
             userEntity.setEmail(id);

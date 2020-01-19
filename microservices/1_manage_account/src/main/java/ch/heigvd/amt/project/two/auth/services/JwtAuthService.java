@@ -11,9 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtAuthService {
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
     private UserService userService;
 
     public JwtAuthService(UserService userService) {
@@ -22,7 +19,7 @@ public class JwtAuthService {
 
     public JWTToken checkUserAndPass(String username, String password, UserEntity user) {
         if (user.getEmail().equals(username) && user.getPassword().equals(password)) {
-            String token = jwtTokenUtil.generateToken(user);
+            String token = JwtTokenUtil.generateToken(user);
             JWTToken jwtToken = new JWTToken();
             jwtToken.token(token);
             return jwtToken;
