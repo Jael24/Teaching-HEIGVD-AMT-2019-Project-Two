@@ -1,6 +1,6 @@
 package ch.heigvd.amt.projectTwo.api.bdd.stepdefs;
 
-//import ch.heigvd.amt.project.two.security.JwtTokenProvider;
+import ch.heigvd.amt.project.two.configuration.JwtTokenUtil;
 import cucumber.api.java8.En;
 import io.restassured.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
