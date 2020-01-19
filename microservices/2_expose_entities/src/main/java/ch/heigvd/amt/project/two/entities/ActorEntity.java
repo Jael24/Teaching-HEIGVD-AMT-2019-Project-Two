@@ -16,7 +16,12 @@ public class ActorEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
+    @Setter
     private long id;
+
+    @Getter
+    @Setter
+    private String owner;
 
     @Column(nullable = false)
     @Getter

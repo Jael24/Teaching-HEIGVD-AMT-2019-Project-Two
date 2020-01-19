@@ -2,36 +2,32 @@ swagger: '2.0'
 info:
   version: '1.0.0'
   title: Manage account
-  description: An API to manage account of actors
+  description: An API to manage account
 host: localhost:8080
 basePath: /api/v1
 schemes:
   - http
 paths:
-  /actors:
+  /users:
     post:
-      description: create an actor
-      operationId: createActor
+      description: create a user
+      operationId: createUser
       consumes:
         - application/json
       parameters:
-        - in: header
-          name: Authorization
-          type: string
-          required: true
-        - name: actor
+        - name: user
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Actor'
+            $ref: '#/definitions/User'
       responses:
         '201':
           description: created
           schema:
             type: object
     get:
-      description: get the list of all actors
-      operationId: getActors
+      description: get the list of all users
+      operationId: getUsers
       parameters:
         - in: header
           name: Authorization
@@ -45,10 +41,12 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Actor'
+              $ref: '#/definitions/User'
+
+  /users/{id}:
     patch:
-      description: modify the password of an actor
-      operationId: modifyPassword
+      description: modify the data of a user
+      operationId: modifyData
       consumes:
         - application/json
       parameters:
@@ -56,16 +54,17 @@ paths:
           name: Authorization
           type: string
           required: true
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The user's id
         - in: body
-          name: patchActor
+          name: patchUser
           description: The data to modify
           schema:
             type: object
-            required:
-              - email
             properties:
-              email:
-                type: string
               newPass:
                 type: string
               isBlocked:
@@ -100,13 +99,12 @@ paths:
         '200':
           description: success
           schema:
-            type: array
             items:
               $ref: '#/definitions/JWTToken'
         '403':
           description: Access denied
 definitions:
-  Actor:
+  User:
     type: object
     properties:
       email:
