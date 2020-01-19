@@ -93,7 +93,7 @@ You don't have to follow this sequence if you prefer to do some of the tasks bef
 
 **Week 4 (January 6th):**
 
-* Implement the **second endpoint**, swapping the role (the person working on Spring Boot now works on Cucumber and vice versa)
+* ~~Implement the **second endpoint**, swapping the role (the person working on Spring Boot now works on Cucumber and vice versa)~~
 * Implement the **third endpoint**, to manage associations between entities (end-to-end, with tests)
 * Add **Traefik** in the Docker topology
 
