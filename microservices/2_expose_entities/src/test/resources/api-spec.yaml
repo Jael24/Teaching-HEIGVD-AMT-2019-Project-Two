@@ -1,494 +1,381 @@
-openapi: 3.0.0
+swagger: '2.0'
 info:
-  description: This is the API for business
-  version: 1.0.0-oas3
-  title: APP-AMT-Project-Two
-  contact:
-    email: mickael.bonjour@heig-vd.ch
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-components:
-  links:
-    PaginateMatchRequest:
-      description: >
-        This link with grab another set of matches
-      operationId: getMatchesByUser
-      parameters:
-        page: '$request.path.page'
-        pageSize: '$request.path.page'
-  schemas:
-    Stadium:
-      type: object
-      required:
-        - name
-        - location
-        - numberOfPlaces
-      properties:
-        name:
-          type: string
-          example: Stade de France
-        location:
-          type: string
-          example: France
-        numberOfPlaces:
-          type: integer
-          example: 35000
-    Team:
-      type: object
-      required:
-        - name
-        - country
-      properties:
-        name:
-          type: string
-          example: FC Lausanne
-        country:
-          type: string
-          example: Switzerland
-    Match:
-      type: object
-      required:
-        - team1
-        - score1
-        - team2
-        - score2
-        - location
-      properties:
-        team1:
-          type: string
-          example: /teams/{id}
-        score1:
-          type: integer
-          example: 3
-        team2:
-          type: string
-          example: /teams/{id}
-        score2:
-          type: integer
-          example: 5
-        location:
-          type: string
-          example: /stadiums/{id}
-    MatchDetails:
-      allOf:
-        - type: object
-          required:
-            - id
-          properties:
-            id:
-              type: integer
-              example: 1
-        - $ref: '#/components/schemas/Match'
-    StadiumDetails:
-      allOf:
-        - type: object
-          required:
-            - id
-          properties:
-            id:
-              type: integer
-              example: 1
-        - $ref: '#/components/schemas/Stadium'
-    TeamDetails:
-      allOf:
-        - type: object
-          required:
-            - id
-          properties:
-            id:
-              type: integer
-              example: 1
-        - $ref: '#/components/schemas/Team'
+  version: '1.0.0'
+  title: Expose cinematographic data
+  description: An API which expose actors, characters and movies
+host: localhost:8080
+basePath: /api/v1
+schemes:
+  - http
 
-  responses:
-    UnauthorizedError:
-      description: Access token is missing or invalid
-    ForbiddenError:
-      description: You are not authorized to use this ressource
-    NotFoundError:
-      description: The ID you provided doesn't exist in our database
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+tags:
+  - name: actors
+    description: Retrieve your actors's activities
+  - name: characters
+    description: Retrieve the infos about the characters
+  - name: movies
+    description: Retrieve the infos about the movies
+
 paths:
-  /matches:
+  /actors:
     get:
-      security:
-        - bearerAuth: []
-      summary: Get all matches
-      operationId: getMatchesByUser
-      parameters:
-        - in: query
-          name: page
-          description: Page number
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: pageSize
-          description: number of elements per page
-          required: false
-          schema:
-            type: integer
-            default: 10
-      description: >
-        You can get all the matches of the database (but you don't know who created them)
+      description: get all actors
+      operationId: getActors
+      tags:
+        - actors
+      produces:
+        - application/json
       responses:
         '200':
-          description: Getting all the matches
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MatchDetails'
-          links:
-            NextLink:
-              $ref: '@/components/links/PaginateMatchRequest'
-            LastLink:
-              $ref: '@/components/links/PaginateMatchRequest'
-            FirstLink:
-              $ref: '@/components/links/PaginateMatchRequest'
-            PrevLink:
-              $ref: '@/components/links/PaginateMatchRequest'
-
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Actor'
     post:
-      security:
-        - bearerAuth: []
-      summary: Add a new match
-      operationId: addMatch
-      description: >
-        You can add a match if you are authenticated
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Match'
+      description: create an actor
+      operationId: createActor
+      consumes:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - name: actor
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Actor'
       responses:
         '201':
-          description: Match added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MatchDetails'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/ForbiddenError'
-
-  /stadiums:
-    get:
-      security:
-        - bearerAuth: []
-      summary: Get all stadiums
-      operationId: getStadiumsByUser
-      description: >
-        You can get all the stadiums of the database
-      responses:
-        '200':
-          description: Getting all the stadiums
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StadiumDetails'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-    post:
-      security:
-        - bearerAuth: []
-      summary: Add a new stadium
-      operationId: addStadium
-      description: >
-        You can add a match if you are authenticated and admin
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Stadium'
-      responses:
-        '201':
-          description: Stadium added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StadiumDetails'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-  /teams:
-    get:
-      security:
-        - bearerAuth: []
-      summary: Get all teams
-      operationId: getTeamsByUser
-      description: >
-        You can get all the teams of the database
-      responses:
-        '200':
-          description: Getting all the teams
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TeamDetails'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-    post:
-      security:
-        - bearerAuth: []
-      summary: Add a new team
-      operationId: addTeam
-      description: >
-        You can add a team if you are authenticated and admin
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Team'
-      responses:
-        '201':
-          description: Team added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TeamDetails'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-
-  /matches/{matchId}:
-    get:
-      security:
-        - bearerAuth: []
-      operationId: getMatchById
-      parameters:
-        - in: path
-          name: matchId
-          description: Id of the match asked
-          required: true
+          description: created
           schema:
-            type: integer
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Match'
-          description: Update of the match completed
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-    put:
-      security:
-        - bearerAuth: []
-      operationId: updateMatch
-      parameters:
-        - in: path
-          name: matchId
-          description: Id of the match asked
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Match'
-      responses:
-        '200':
-          description: The match is updated
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-  /teams/{teamId}:
+            type: object
+  /actors/{id}:
     get:
-      security:
-        - bearerAuth: []
-      operationId: getTeamById
-      parameters:
-        - in: path
-          name: teamId
-          description: Id of the team asked
-          required: true
-          schema:
-            type: integer
+      description: get an actor
+      operationId: getActor
+      produces:
+        - application/json
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Team'
-          description: Update of the team completed
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-    put:
-      security:
-        - bearerAuth: []
-      operationId: updateTeam
-      parameters:
-        - in: path
-          name: teamId
-          description: Id of the team asked
-          required: true
+          description: success
           schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Team'
-      responses:
-        '200':
-          description: The team is updated
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
+            type: array
+            items:
+              $ref: '#/definitions/Actor'
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: path
+          name: id
+          required: true
+          type: integer
+          format: int64
+          description: The actor's id
     delete:
-      security:
-        - bearerAuth: []
-      operationId: deleteTeam
+      description: delete an actor
+      operationId: deleteActor
       parameters:
-        - in: path
-          name: teamId
-          description: Id of the team to delete
+        - in: header
+          name: Authorization
+          type: string
           required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: The team is deleted
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-  /stadiums/{stadiumId}:
-    get:
-      operationId: getStadiumById
-      security:
-        - bearerAuth: []
-      parameters:
         - in: path
-          name: stadiumId
-          description: Id of the stadium asked
+          name: id
           required: true
-          schema:
-            type: integer
+          type: integer
+          format: int64
+          description: The actor's id
       responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Stadium'
-          description: Update of the stadium completed
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-    delete:
-      security:
-        - bearerAuth: []
-      operationId: deleteStadium
-      parameters:
-        - in: path
-          name: stadiumId
-          description: Id of the stadium to delete
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: The stadium is deleted
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+        200:
+          description: deleted
     put:
-      security:
-        - bearerAuth: []
-      operationId: updateStadium
+      description: modify an actor
+      operationId: modifyActor
+      produces:
+        - application/json
       parameters:
-        - in: path
-          name: stadiumId
-          description: Id of the stadium asked
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - name: actor
+          in: body
           required: true
           schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Stadium'
+            $ref: '#/definitions/Actor'
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+          description: The actor's id
+      responses:
+        200:
+          description: updated
+  /movies:
+    get:
+      description: get all movies
+      operationId: getMovies
+      produces:
+        - application/json
       responses:
         '200':
-          description: The stadium is updated
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-  /cancellations:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Movie'
     post:
-      security:
-        - bearerAuth: []
-      operationId: deleteMatch
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MatchDetails'
+      description: create a movie
+      operationId: createMovie
+      consumes:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - name: movie
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Movie'
       responses:
-        '200i':
-          description: The Match is deleted
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-
-
-servers:
-  - url: 'https://localhost/api/app/'
-  - url: 'http://localhost/api/app/'
+        '201':
+          description: created
+          schema:
+            type: object
+  /movies/{id}:
+    get:
+      description: get a movie
+      operationId: getMovie
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Movie'
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: path
+          name: id
+          required: true
+          type: integer
+          format: int64
+          description: The movie's id
+    delete:
+      description: delete a movie
+      operationId: deleteMovie
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: path
+          name: id
+          required: true
+          type: integer
+          format: int64
+          description: The movie's id
+      responses:
+        200:
+          description: deleted
+    put:
+      description: modify a movie
+      operationId: putMovie
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - name: movie
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Movie'
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+          description: The movie's id
+      responses:
+        200:
+          description: updated
+  /character:
+    get:
+      description: get all characters
+      operationId: getCharacters
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Character'
+    post:
+      description: create a character
+      operationId: createCharacter
+      consumes:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - name: character
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Character'
+      responses:
+        '201':
+          description: created
+          schema:
+            type: object
+  /characters/{id_actor}/{id_movie}:
+    get:
+      description: get a character
+      operationId: getCharacter
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Character'
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: path
+          name: id_actor
+          required: true
+          type: integer
+          format: int64
+          description: The actor's id
+        - in: path
+          name: id_movie
+          required: true
+          type: integer
+          format: int64
+          description: The movie's id
+    delete:
+      description: delete a character
+      operationId: deleteCharacter
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: path
+          name: id_actor
+          required: true
+          type: integer
+          format: int64
+          description: The actor's id
+        - in: path
+          name: id_movie
+          required: true
+          type: integer
+          format: int64
+          description: The movie's id
+      responses:
+        200:
+          description: deleted
+    put:
+      description: modify a character
+      operationId: putCharacter
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - name: character
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Character'
+        - in: path
+          name: id_actor
+          required: true
+          type: integer
+          format: int64
+          description: The actor's id
+        - in: path
+          name: id_movie
+          required: true
+          type: integer
+          format: int64
+          description: The movie's id
+      responses:
+        200:
+          description: updated
+definitions:
+  Actor:
+    type: object
+    properties:
+      fullname:
+        type: string
+      email:
+        type: string
+      owner:
+        type: string
+    required:
+      - email
+      - owner
+  Movie:
+    type: object
+    properties:
+      title:
+        type: string
+      owner:
+        type: string
+    required:
+      - title
+      - owner
+  Character:
+    type: object
+    properties:
+      actor:
+        type: integer
+        format: int64
+      movie:
+        type: integer
+        format: int64
+      charName:
+        type: string
+      owner:
+        type: string
+    required:
+      - actor
+      - movie
+      - charName
+      - owner
+  JWTToken:
+    type: object
+    properties:
+      token:
+        type: string
+    required:
+      - token
