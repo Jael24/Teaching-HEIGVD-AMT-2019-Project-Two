@@ -248,36 +248,7 @@ paths:
           description: created
           schema:
             type: object
-  /characters/{id_actor}/{id_movie}:
-    get:
-      description: get a character
-      operationId: getCharacter
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: success
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Character'
-      parameters:
-        - in: header
-          name: Authorization
-          type: string
-          required: true
-        - in: path
-          name: id_actor
-          required: true
-          type: integer
-          format: int64
-          description: The actor's id
-        - in: path
-          name: id_movie
-          required: true
-          type: integer
-          format: int64
-          description: The movie's id
+  /character/{id}:
     delete:
       description: delete a character
       operationId: deleteCharacter
@@ -287,50 +258,15 @@ paths:
           type: string
           required: true
         - in: path
-          name: id_actor
+          name: id
           required: true
           type: integer
           format: int64
-          description: The actor's id
-        - in: path
-          name: id_movie
-          required: true
-          type: integer
-          format: int64
-          description: The movie's id
+          description: The character's id
       responses:
         200:
           description: deleted
-    put:
-      description: modify a character
-      operationId: putCharacter
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: Authorization
-          type: string
-          required: true
-        - name: character
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/Character'
-        - in: path
-          name: id_actor
-          required: true
-          type: integer
-          format: int64
-          description: The actor's id
-        - in: path
-          name: id_movie
-          required: true
-          type: integer
-          format: int64
-          description: The movie's id
-      responses:
-        200:
-          description: updated
+
 definitions:
   Actor:
     type: object
