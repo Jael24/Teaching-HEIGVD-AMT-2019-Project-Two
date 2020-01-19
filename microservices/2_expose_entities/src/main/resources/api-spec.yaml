@@ -38,6 +38,10 @@ paths:
       consumes:
         - application/json
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - name: actor
           in: body
           required: true
@@ -62,15 +66,24 @@ paths:
             items:
               $ref: '#/definitions/Actor'
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - in: path
           name: id
           required: true
           type: integer
+          format: int64
           description: The actor's id
     delete:
       description: delete an actor
       operationId: deleteActor
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - in: path
           name: id
           required: true
@@ -86,6 +99,10 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - name: actor
           in: body
           required: true
@@ -95,6 +112,7 @@ paths:
           in: path
           required: true
           type: integer
+          format: int64
           description: The actor's id
       responses:
         200:
@@ -118,6 +136,10 @@ paths:
       consumes:
         - application/json
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - name: movie
           in: body
           required: true
@@ -142,19 +164,29 @@ paths:
             items:
               $ref: '#/definitions/Movie'
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - in: path
           name: id
           required: true
           type: integer
+          format: int64
           description: The movie's id
     delete:
       description: delete a movie
       operationId: deleteMovie
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - in: path
           name: id
           required: true
           type: integer
+          format: int64
           description: The movie's id
       responses:
         200:
@@ -165,6 +197,10 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - name: movie
           in: body
           required: true
@@ -174,6 +210,7 @@ paths:
           in: path
           required: true
           type: integer
+          format: int64
           description: The movie's id
       responses:
         200:
@@ -197,6 +234,10 @@ paths:
       consumes:
         - application/json
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - name: character
           in: body
           required: true
@@ -221,29 +262,41 @@ paths:
             items:
               $ref: '#/definitions/Character'
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - in: path
           name: id_actor
           required: true
           type: integer
+          format: int64
           description: The actor's id
         - in: path
           name: id_movie
           required: true
           type: integer
+          format: int64
           description: The movie's id
     delete:
       description: delete a character
       operationId: deleteCharacter
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - in: path
           name: id_actor
           required: true
           type: integer
+          format: int64
           description: The actor's id
         - in: path
           name: id_movie
           required: true
           type: integer
+          format: int64
           description: The movie's id
       responses:
         200:
@@ -254,6 +307,10 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
         - name: character
           in: body
           required: true
@@ -263,34 +320,17 @@ paths:
           name: id_actor
           required: true
           type: integer
+          format: int64
           description: The actor's id
         - in: path
           name: id_movie
           required: true
           type: integer
+          format: int64
           description: The movie's id
       responses:
         200:
           description: updated
-  /login:
-    post:
-      description: login - receive JWT token
-      operationId: login
-      consumes:
-        - application/json
-      parameters:
-        - name: login
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/JWTToken'
-      responses:
-        '200':
-          description: success
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/JWTToken'
 definitions:
   Actor:
     type: object
@@ -299,15 +339,21 @@ definitions:
         type: string
       email:
         type: string
+      owner:
+        type: string
     required:
       - email
+      - owner
   Movie:
     type: object
     properties:
       title:
         type: string
+      owner:
+        type: string
     required:
       - title
+      - owner
   Character:
     type: object
     properties:
@@ -319,10 +365,13 @@ definitions:
         format: int64
       charName:
         type: string
+      owner:
+        type: string
     required:
       - actor
       - movie
       - charName
+      - owner
   JWTToken:
     type: object
     properties:

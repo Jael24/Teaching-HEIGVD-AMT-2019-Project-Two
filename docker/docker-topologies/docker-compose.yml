@@ -23,4 +23,4 @@ services:
       MYSQL_DATABASE: 2_expose_entities
       MYSQL_ROOT_PASSWORD: pwd
     ports:
-      - 3307:3307
+      - 3307:3306

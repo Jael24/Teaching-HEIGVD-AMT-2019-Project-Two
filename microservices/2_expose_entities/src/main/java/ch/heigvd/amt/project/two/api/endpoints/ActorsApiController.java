@@ -2,6 +2,7 @@ package ch.heigvd.amt.project.two.api.endpoints;
 
 import ch.heigvd.amt.project.two.api.ActorsApi;
 import ch.heigvd.amt.project.two.api.exceptions.NotFoundException;
+import ch.heigvd.amt.project.two.configuration.JwtTokenUtil;
 import ch.heigvd.amt.project.two.entities.ActorEntity;
 import ch.heigvd.amt.project.two.model.Actor;
 import ch.heigvd.amt.project.two.repositories.ActorRepository;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,13 +28,11 @@ public class ActorsApiController implements ActorsApi {
 
     @Autowired
     ActorRepository actorRepository;
-    @Autowired
-    private HttpServletRequest request;
 
-    public ResponseEntity<Object> createActor(@ApiParam(value = "", required = true) @Valid @RequestBody Actor actor) {
+    public ResponseEntity<Object> createActor(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Actor actor) {
         ActorEntity newActorEntity = toActorEntity(actor);
+        newActorEntity.setOwner(JwtTokenUtil.getEmailFromToken(authorization));
         actorRepository.save(newActorEntity);
-        Long id = newActorEntity.getId();
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -50,16 +50,23 @@ public class ActorsApiController implements ActorsApi {
         return ResponseEntity.ok(actors);
     }
 
-    public ResponseEntity<Void> deleteActor(@ApiParam(value = "The actor's id",required=true) @PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteActor(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization, @ApiParam(value = "The actor's id",required=true) @PathVariable("id") Long id) {
+        if (!checkAuth(authorization,actorRepository.findById(id).orElse(null))) {
+            return new ResponseEntity<>(HttpStatus.valueOf(401));
+        }
         actorRepository.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.valueOf(200));
     }
 
-    public ResponseEntity<Void> modifyActor(@ApiParam(value = "The actor's id",required=true) @PathVariable("id") Integer id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Actor actor) {
+    public ResponseEntity<Void> modifyActor(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The actor's id",required=true) @PathVariable("id") Long id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Actor actor) {
         ActorEntity actorEntity = toActorEntity(actor);
 
-        if(actorRepository.findById(Long.valueOf(id)).isPresent()) {
+        if (!checkAuth(authorization,actorEntity)) {
+            return new ResponseEntity<>(HttpStatus.valueOf(401));
+        }
+
+        if(actorRepository.findById(id).isPresent()) {
             actorEntity.setId(id);
             actorRepository.save(actorEntity);
             return ResponseEntity.ok().build();
@@ -68,10 +75,33 @@ public class ActorsApiController implements ActorsApi {
         }
     }
 
+    public ResponseEntity<List<Actor>> getActor(@ApiParam(value = "" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,@ApiParam(value = "The actor's id",required=true) @PathVariable("id") Long id) {
+        ActorEntity actorEntity = actorRepository.findById(id).orElse(null);
+
+        if (!checkAuth(authorization,actorEntity)) {
+            return new ResponseEntity<>(HttpStatus.valueOf(401));
+        }
+
+        List<Actor> actors = new ArrayList<>();
+        actors.add(toActor(actorEntity));
+
+        return ResponseEntity.ok(actors);
+    }
+
+    private boolean checkAuth(String token, ActorEntity actor) {
+        String emailOwnerFromToken = JwtTokenUtil.getEmailFromToken(token);
+
+        if (actor == null)
+            return false;
+
+        return emailOwnerFromToken.equals(actor.getOwner());
+    }
+
     private ActorEntity toActorEntity(Actor actor) {
         ActorEntity entity = new ActorEntity();
         entity.setEmail(actor.getEmail());
         entity.setFullname(actor.getFullname());
+        entity.setOwner(actor.getOwner());
         return entity;
     }
 
@@ -79,6 +109,7 @@ public class ActorsApiController implements ActorsApi {
         Actor actor = new Actor();
         entity.setEmail(actor.getEmail());
         entity.setFullname(actor.getFullname());
+        entity.setOwner(actor.getOwner());
         return actor;
     }
 

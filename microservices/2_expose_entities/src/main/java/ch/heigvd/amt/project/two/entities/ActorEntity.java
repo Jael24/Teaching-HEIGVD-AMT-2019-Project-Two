@@ -21,7 +21,7 @@ public class ActorEntity implements Serializable {
 
     @Getter
     @Setter
-    private long idOwner;
+    private String owner;
 
     @Column(nullable = false)
     @Getter
