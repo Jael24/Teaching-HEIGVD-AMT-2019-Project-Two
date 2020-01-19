@@ -16,8 +16,6 @@ import org.springframework.http.HttpHeaders;
  * Class that abstract test context management and REST API invocation.
  */
 
-// Boilerplate code taken from https://github.com/bcarun/cucumber-samples/tree/master/hello-springboot-cucumber
-
 public class AbstractSteps {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSteps.class);
