@@ -15,13 +15,14 @@ public class IsBlockedFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Boolean isUserBlocked = (Boolean)request.getAttribute("isBlocked");
+        if (!request.getMethod().equals("POST")) {
+            Boolean isUserBlocked = (Boolean) request.getAttribute("isBlocked");
 
-        if (isUserBlocked) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "You are blocked");
-            return;
+            if (isUserBlocked) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "You are blocked");
+                return;
+            }
         }
-
         filterChain.doFilter(request, response);
     }
 }

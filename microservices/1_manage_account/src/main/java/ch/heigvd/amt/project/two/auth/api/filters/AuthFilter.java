@@ -18,24 +18,25 @@ public class AuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader("Authorization");
 
-        if (token.isEmpty()) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "You must add \"Authorization\" header");
-            return;
+        if (!request.getMethod().equals("POST")) {
+
+            if (token.isEmpty()) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "You must add \"Authorization\" header");
+                return;
+            }
+
+            String emailFromToken = JwtTokenUtil.getEmailFromToken(token);
+
+            if (emailFromToken.isEmpty()) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Your token isn't valid");
+                return;
+            }
+
+            // Authentication successful
+            request.setAttribute("email", emailFromToken);
+            request.setAttribute("isBlocked", JwtTokenUtil.getIsBlockedFromToken(token));
+            request.setAttribute("isAdmin", JwtTokenUtil.getIsAdminFromToken(token));
         }
-
-        String emailFromToken = JwtTokenUtil.getEmailFromToken(token);
-
-        if (emailFromToken.isEmpty()) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Your token isn't valid");
-            return;
-        }
-
-        // Authentication successful
-        request.setAttribute("email", emailFromToken);
-        request.setAttribute("isBlocked", JwtTokenUtil.getIsBlockedFromToken(token));
-        request.setAttribute("isAdmin", JwtTokenUtil.getIsAdminFromToken(token));
-
         filterChain.doFilter(request, response);
-
     }
 }
